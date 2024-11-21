@@ -37,7 +37,7 @@ https.createServer(httpsOptions, function (req, res) {
         var target,
             domain = req.headers.host,
             host = domain.split(":")[0];
-        if (host === "freightdok.io") {
+        if (host === "dev.freightdok.io") {
             if (req.url === "/privacy-policy") {
                 target = { host: "localhost", port: "5000", path: "/privacy-policy" }
             }
