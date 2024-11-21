@@ -45,14 +45,14 @@ https.createServer(httpsOptions, function (req, res) {
 
         };
         
-        if (host === "pulse.freightdok.io") target = { host: "localhost", port: "5698" }
+        if (host === "pulse-dev.freightdok.io") target = { host: "localhost", port: "5698" }
         if (host === "sunnylogistics.co") target = { host: "localhost", port: "9898" }
-        if (host === "app.freightdok.io") target = { host: "localhost", port: "3200" }
-        if (host === "mail.freightdok.io") target = { host: "localhost", port: "9999" }
-        if (host === "api.freightdok.io") target = { host: "localhost", port: "5000" };
-        if (host === "go.freightdok.io") target = { host: "localhost", port: "8080" };
-        if (host === "babylonian-gate.freightdok.io") target = { host: "localhost", port: "5800" };
-	if (host === "cors.freightdok.io") target = { host: "localhost", port: "3432" };    
+        if (host === "app-dev.freightdok.io") target = { host: "localhost", port: "3200" }
+        if (host === "mail-dev.freightdok.io") target = { host: "localhost", port: "9999" }
+        if (host === "api-dev.freightdok.io") target = { host: "localhost", port: "5000" };
+        if (host === "go-dev.freightdok.io") target = { host: "localhost", port: "8080" };
+        if (host === "dev-babylonian-gate.freightdok.io") target = { host: "localhost", port: "5800" };
+	if (host === "dev-cors.freightdok.io") target = { host: "localhost", port: "3432" };    
 	  console.log("Request Host Domain Arrived => From IP Address :",ip,"  & HOST => ", host, "Redirecting to Application target =>", target)
         //////////////////
 
