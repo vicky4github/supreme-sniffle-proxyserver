@@ -1,49 +1,70 @@
 var https = require("https");
 var httpProxy = require("http-proxy");
 const express = require('express');
-const fs=require('fs')
+const { createProxyMiddleware } = require('http-proxy-middleware');
+
+const fs = require('fs')
 const app = express();
 //Server SSL 
 // ========================================================
-const cert=fs.readFileSync('./certs/cert.crt');
-const ca=fs.readFileSync('./certs/ca.ca-bundle');
-const key=fs.readFileSync('./certs/freightdok.key');
-const httpsOptions = {cert, ca, key};
+const cert = fs.readFileSync('./certs/newCerts/cert.crt');
+const ca = fs.readFileSync('./certs/newCerts/ca.ca-bundle');
+const key = fs.readFileSync('./certs/newCerts/freightdok.key');
+const httpsOptions = { cert, ca, key };
 // ========================================================
+
 
 // reverse proxy
 var proxy = httpProxy.createProxyServer();
 
-app.use(function(request, response, next) {
-    console.log("HTTP Request arrived => ",request.headers.host,"= To URL =", request.url)
+app.use(function (request, response, next) {
+    var ip = (request.headers['x-forwarded-for'] || '').split(',').pop().trim() || 
+         request.socket.remoteAddress
+    
+    console.log("HTTP Request arrived => From IP Address ",ip,request.headers.host, "= To URL =", request.url)
     if (process.env.NODE_ENV != 'development' && !request.secure) {
-       return response.redirect("https://" + request.headers.host + request.url);
+        return response.redirect("https://" + request.headers.host + request.url);
     }
-
     next();
 })
 
-https.createServer(httpsOptions,function (req, res) {
-   try{ var target,
-        domain = req.headers.host,
-        host = domain.split(":")[0];
-                
-    ////////////////// (or create your own more fancy version! you can use regex, wildcards, whatever...)
-    // if (host === "localhost") target = {host: "localhost", port: "2000"};
-    if (host === "freightdok.io") target = {host: "localhost", port: "3000"};
-    if (host === "api.freightdok.io") target = {host: "localhost", port: "4000"};
-    
-    console.log("Request Host Domain Arrived => ",host,"Redirecting to Application target =>",target)  
-    //////////////////
+https.createServer(httpsOptions, function (req, res) {
+    try {
+        
+        var ip = (req.headers['x-forwarded-for'] || '').split(',').pop().trim() || 
+         req.socket.remoteAddress
+        
+        var target,
+            domain = req.headers.host,
+            host = domain.split(":")[0];
+        if (host === "freightdok.io") {
+            if (req.url === "/privacy-policy") {
+                target = { host: "localhost", port: "5000", path: "/privacy-policy" }
+            }
+            target = { host: "localhost", port: "3100" }
+
+        };
+        
+        if (host === "pulse.freightdok.io") target = { host: "localhost", port: "5698" }
+        if (host === "sunnylogistics.co") target = { host: "localhost", port: "9898" }
+        if (host === "app.freightdok.io") target = { host: "localhost", port: "3200" }
+        if (host === "mail.freightdok.io") target = { host: "localhost", port: "9999" }
+        if (host === "api.freightdok.io") target = { host: "localhost", port: "5000" };
+        if (host === "go.freightdok.io") target = { host: "localhost", port: "8080" };
+        if (host === "babylonian-gate.freightdok.io") target = { host: "localhost", port: "5800" };
+	if (host === "cors.freightdok.io") target = { host: "localhost", port: "3432" };    
+	  console.log("Request Host Domain Arrived => From IP Address :",ip,"  & HOST => ", host, "Redirecting to Application target =>", target)
+        //////////////////
 
         proxy.web(req, res, {
             target: target
         });
     }
 
-    catch(err){
-        console.log("Couldn't Connect to Target Source :",err.message)
+    catch (err) {
+        console.log("Couldn't Connect to Target Source :", err.message)
     }
 }).listen(443);
 
-app.listen(80, () => {console.log("==========================Hearing HTTP Requests: (http server running) =================")})
+app.listen(80, () => { console.log("==========================Hearing HTTP Requests: (http server running) =================") })
+
